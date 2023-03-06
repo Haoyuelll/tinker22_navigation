@@ -1,0 +1,42 @@
+#ifndef ICM20608_H
+#define ICM20608_H
+#include <QObject>
+#include <QTimer>
+lass Icm20608 : public QObject
+
+                    _OBJECT public : explicit Icm20608(QObject *parent = 0);
+~Icm20608();
+Q_INVOKABLE void setCapture(bool str);
+
+private:
+QTimer *timer;
+QString gxdata;
+QString gydata;
+QString gzdata;
+QString axdata;
+QString aydata;
+QString azdata;
+QString tempdata;
+QString gxData();
+QString gyData();
+QString gzData();
+QString axData();
+QString ayData();
+QString azData();
+QString tempData();
+void icm20608ReadData();
+Q_PROPERTY(QString gxData READ gxData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString gyData READ gyData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString gzData READ gzData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString axData READ axData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString ayData READ ayData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString azData READ azData NOTIFY icm20608DataChanged)
+Q_PROPERTY(QString tempData READ tempData NOTIFY
+               icm20608DataChanged)
+public slots:
+void timer_timeout();
+signals:
+void icm20608DataChanged();
+}
+;
+#endif // ICM20608_H

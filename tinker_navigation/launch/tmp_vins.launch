@@ -1,0 +1,15 @@
+<launch>
+	<!-- <include file="$(find tinker_navigation)/launch/rs_vins.launch"/> -->
+
+	<node pkg="vins" type="vins_node" name="vins_rs_h">
+		<param name="config_file" value="~/VINS_ws/src/VINS-Fusion/config/euroc/euroc_stereo_imu_config.yaml"/>
+	</node>
+
+	<!-- <node pkg="vins" type="loop_fusion" name="loop_fusion_node">
+		<param name="config_file" value="/home/hazel/VINS_ws/src/VINS-Fusion/config/realsense_d435i/realsense_stereo_imu_config.yaml"/>
+	</node>	 -->
+
+	<node pkg="tf" type="static_transform_publisher" name="vins_world_trans_h" args="0 0 0 0 0 0 world camera_link 10" />
+	<include file="$(find vins)/launch/vins_rviz.launch"/>
+
+</launch>

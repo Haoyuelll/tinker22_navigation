@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tinker_camera">
+    <xacro:property name="PI" value="3.1415926535897931" />
+    <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0" />
+    </material>
+
+    <!-- base_link -->
+    <xacro:property name="stl_trans_xyz" value="0.32 0.3 -0.23" />
+    <xacro:property name="stl_rotate_rpy" value="0. 0. 3.1415926" />
+    <xacro:property name="stl_viz_scale" value="0.001 0.001 0.001" />
+    <link name="base_link"/>
+  
+    
+    <!-- rgbd camera -->
+    <xacro:property name="camera_link_trans_xyz" value="-0.225 0 1.35" />
+    <link name="camera_link">
+      <origin xyz="0 0 0" rpy="${-PI/180*28.6} 0 ${-PI/4}" />
+      <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
+    </link>
+    <joint name="base_to_camera_link" type="fixed">
+        <parent link="base_link" />
+        <child link="camera_link" />
+        <origin xyz="${camera_link_trans_xyz}" rpy="${-PI} ${-PI} ${-PI/180*208.6}" />
+        <axis xyz="0 0 1" />
+    </joint>
+
+    <link name="odom"/>
+    <joint name="camera_to_odom" type="continuous">
+        <parent link="base_link" />
+        <child link="odom" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+
+</robot>

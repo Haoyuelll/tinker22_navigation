@@ -1,0 +1,31 @@
+# Docs: http://wiki.ros.org/costmap_2d
+
+#footprint: [[0.225, 0.21], [0.225, -0.21], [-0.225, -0.21], [-0.225, 0.21]]
+footprint: [[0.325, 0.3], [0.325, -0.3], [-0.325, -0.3], [-0.325, 0.3]]
+
+transform_tolerance: 0.5
+
+obstacle_layer:
+ enabled: true
+ obstacle_range: 3.0
+ raytrace_range: 4.0
+ inflation_radius: 0.5
+ track_unknown_space: true
+ combination_method: 1
+
+ observation_sources: laser_scan_sensor point_cloud2_sensor
+ laser_scan_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
+ point_cloud2_sensor: {data_type: PointCloud2, topic: /vins_estimator/margin_cloud, marking: true, clearing: true}
+
+inflation_layer:
+  enabled:              true
+  cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off
+  inflation_radius:     0.35   # max. distance from an obstacle at which costs are incurred for planning paths.
+
+static_layer:
+  enabled:              true
+  map_topic:            "/map"
+  lethal_cost_threshold:     90
+
+
+

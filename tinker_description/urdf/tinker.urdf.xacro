@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tinker">
+    <xacro:property name="PI" value="3.1415926535897931" />
+    <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0" />
+    </material>
+
+    <!-- base_link -->
+    <xacro:property name="stl_trans_xyz" value="0.32 0.3 -0.23" />
+    <xacro:property name="stl_rotate_rpy" value="0. 0. 3.1415926" />
+    <xacro:property name="stl_viz_scale" value="0.001 0.001 0.001" />
+    <link name="base_link">
+        <visual>
+            <origin xyz="${stl_trans_xyz}" rpy="${stl_rotate_rpy}" />
+            <geometry>
+                <mesh filename="package://tinker_description/meshes/tinker_base.stl" scale="${stl_viz_scale}" />
+            </geometry>
+            <material name="">
+                <color rgba="0.6 0.6 0.6 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="${stl_trans_xyz}" rpy="${stl_rotate_rpy}" />
+            <geometry>
+                <mesh filename="package://tinker_description/meshes/tinker_base.stl" scale="${stl_viz_scale}" />
+            </geometry>
+        </collision>
+    </link>
+    
+    <!-- laser -->
+    <xacro:property name="laser_trans_xyz" value="0.25 0. 0.25" />
+
+    <link name="laser" />
+    <joint name="base_to_laser" type="fixed">
+        <parent link="base_link" />
+        <child link="laser" />
+        <origin xyz="${laser_trans_xyz}" rpy="0 0 ${-PI}"/>
+    </joint>
+
+    
+    <!-- rgbd camera -->
+
+    <!-- The following values are approximate, and the camera node
+     publishing TF values with actual calibrated camera extrinsic values -->
+    <xacro:property name="d435_cam_depth_to_infra1_offset" value="0.0"/>
+    <xacro:property name="d435_cam_depth_to_infra2_offset" value="-0.050"/>
+    <xacro:property name="d435_cam_depth_to_color_offset" value="0.015"/>
+
+    <!-- The following values model the aluminum peripherial case for the
+  	D435 camera, with the camera joint represented by the actual
+  	peripherial camera tripod mount -->
+    <xacro:property name="d435_cam_width" value="0.090"/>
+    <xacro:property name="d435_cam_height" value="0.025"/>
+    <xacro:property name="d435_cam_depth" value="0.02505"/>
+    <xacro:property name="d435_cam_mount_from_center_offset" value="0.0149"/>
+    <!-- glass cover is 0.1 mm inwards from front aluminium plate -->
+    <xacro:property name="d435_glass_to_front" value="0.1e-3"/>
+    <!-- see datasheet Revision 007, Fig. 4-4 page 65 -->
+    <xacro:property name="d435_zero_depth_to_glass" value="4.2e-3"/>
+    <!-- convenience precomputation to avoid clutter-->
+    <xacro:property name="d435_mesh_x_offset" value="${d435_cam_mount_from_center_offset-d435_glass_to_front-d435_zero_depth_to_glass}"/>
+
+    <!-- The following offset is relative the the physical D435 camera peripherial
+  	camera tripod mount -->
+    <xacro:property name="d435_cam_depth_px" value="${d435_cam_mount_from_center_offset}"/>
+    <xacro:property name="d435_cam_depth_py" value="0.0175"/>
+    <xacro:property name="d435_cam_depth_pz" value="${d435_cam_height/2}"/>
+
+
+    <xacro:property name="camera_link_trans_xyz" value="-0.225 0 1.32" />
+    <link name="camera_link">
+      <origin xyz="0 0 0" rpy="${-PI/180*28.6} 0 ${-PI/4}" />
+      <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
+    </link>
+    <joint name="base_to_camera_link" type="fixed">
+        <parent link="base_link" />
+        <child link="camera_link" />
+        <origin xyz="${camera_link_trans_xyz}" rpy="${-PI} ${-PI/180*208.6} ${-PI}" />
+        <axis xyz="0 0 1" />
+    </joint>
+
+    <joint name="camera_depth_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="camera_link"/>
+        <child link="camera_depth_frame" />
+      </joint>
+      <link name="camera_depth_frame"/>
+
+      <joint name="camera_depth_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${-PI/2} 0 ${-PI/2}" />
+        <parent link="camera_depth_frame" />
+        <child link="camera_depth_optical_frame" />
+      </joint>
+      <link name="camera_depth_optical_frame"/>
+
+      <!-- camera left IR joints and links -->
+      <joint name="camera_infra1_joint" type="fixed">
+        <origin xyz="0 ${d435_cam_depth_to_infra1_offset} 0" rpy="0 0 0" />
+        <parent link="camera_link" />
+        <child link="camera_infra1_frame" />
+      </joint>
+      <link name="camera_infra1_frame"/>
+
+      <joint name="camera_infra1_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${-PI/2} 0 ${-PI/2}" />
+        <parent link="camera_infra1_frame" />
+        <child link="camera_infra1_optical_frame" />
+      </joint>
+      <link name="camera_infra1_optical_frame"/>
+
+      <!-- camera right IR joints and links -->
+      <joint name="camera_infra2_joint" type="fixed">
+        <origin xyz="0 ${d435_cam_depth_to_infra2_offset} 0" rpy="0 0 0" />
+        <parent link="camera_link" />
+        <child link="camera_infra2_frame" />
+      </joint>
+      <link name="camera_infra2_frame"/>
+
+      <joint name="camera_infra2_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${-PI/2} 0 ${-PI/2}" />
+        <parent link="camera_infra2_frame" />
+        <child link="camera_infra2_optical_frame" />
+      </joint>
+      <link name="camera_infra2_optical_frame"/>
+
+      <!-- camera color joints and links -->
+      <joint name="camera_color_joint" type="fixed">
+        <origin xyz="0 ${d435_cam_depth_to_color_offset} 0" rpy="0 0 0" />
+        <parent link="camera_link" />
+        <child link="camera_color_frame" />
+      </joint>
+      <link name="camera_color_frame"/>
+
+      <joint name="camera_color_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${-PI/2} 0 ${-PI/2}" />
+        <parent link="camera_color_frame" />
+        <child link="camera_color_optical_frame" />
+      </joint>
+      <link name="camera_color_optical_frame"/>
+
+    <link name="odom"/>
+    <joint name="camera_to_odom" type="continuous">
+        <parent link="camera_link" />
+        <child link="odom" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+
+</robot>

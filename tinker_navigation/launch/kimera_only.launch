@@ -1,0 +1,61 @@
+<launch>
+  <arg name="dataset_name" value="RealSenseIR"/>
+  <arg name="online" default="true" />
+
+  <arg name="log_output" default="false"/>
+  <arg name="log_output_path" default="$(find kimera_vio_ros)/output_logs/" if="$(arg log_output)"/>
+  <arg name="log_gt_data" default="false"/>
+  <arg name="gt_topic" default=""/>
+  <!-- Set use_sim_time to true if you use rosbag with clock argument -->
+  <arg name="should_use_sim_time" default="false"/>
+  <!-- Only here for convenience -->
+  <arg name="run_stereo_dense" default="true"/>
+
+  <!-- Only used when parsing a rosbag -->
+  <arg name="rosbag_path" default="default.bag" unless="$(arg online)"/>
+
+  <!-- Frame IDs. These DO NOT match frame id's on the video streams, as the 
+	RealSense and Kimera publish conflicting Tf's -->
+  <arg name="world_frame_id" value="world"/>
+  <arg name="base_link_frame_id" value="base_link"/>
+  <arg name="map_frame_id" value="kimera_map"/>
+  <arg name="left_cam_frame_id" value="left_cam"/>
+  <arg name="right_cam_frame_id" value="right_cam"/>
+
+  <!-- Subscribed Topics -->
+  <arg name="left_cam_topic" value="/camera/infra1/image_rect_raw"/>
+  <arg name="right_cam_topic" value="/camera/infra2/image_rect_raw"/>
+  <arg name="imu_topic" value="/camera/imu"/>
+
+  <param name="robot_description1" command="xacro '$(find tinker_description)/urdf/kimera1.urdf.xacro'" />
+  <node name="robot_state_publisher1" pkg="robot_state_publisher" type="robot_state_publisher">
+    <remap from="robot_description" to="robot_description1" />
+  </node>
+
+  <include file="$(find tesse_ros_bridge)/launch/tesse_bridge.launch"/>
+  <include file="$(find tinker_navigation)/launch/kimera_metric_realsense.launch"/>
+  
+  <include file="$(find tinker_navigation)/launch/rs_camera.launch"/>
+  <!-- <remap from="/cam0/image_raw" to="/camera/infra1/image_rect_raw"/> -->
+  <!-- <remap from="/cam1/image_raw" to="/camera/infra2/image_rect_raw"/> -->
+  <!-- <remap from="/cam0/camera_info" to="/camera/infra1/camera_info"/>
+      <remap from="/cam1/camera_info" to="/camera/infra2/camera_info"/> -->
+  <!-- <remap from="/odom" to="/kimera_vio_ros/odometry"/> -->
+
+  <!-- Launch actual pipeline -->
+  <include file="$(find kimera_vio_ros)/launch/kimera_vio_ros.launch" pass_all_args="true"/>
+
+  <!-- Launch static TF node from base_link to velo_link -->
+  <node pkg="tf" type="static_transform_publisher" name="velo_link_broadcaster" args="0 0 0 0 0 0 1 base_link velo_link 100"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="kim_base_trans" args="-0.225 0 1.35 0 0.247 0 1 base_link camera_link 100"/>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find kimera_semantics_ros)/rviz/kimera_realsense_metric.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find kimera_vio_ros)/rviz/kimera_vio_euroc.rviz" /> -->
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tinker_navigation)/config/slam/laser_rgbd_slam.rviz" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="kimera_base_trans" args="-0.225 0 1.35 3.6407 0 0.7853 1 kimera_map base_link 10" /> -->
+  <node pkg="tf" type="static_transform_publisher" name="kimera_map_trans" args="0 0 0 0 0 0 camera_link kimera_map 10" />
+  <node pkg="tf" type="static_transform_publisher" name="world_map_trans" args="0 0 0 0 0 0 world map 10" />
+  <node pkg="tf" type="static_transform_publisher" name="odom_trans" args="0 0 0 0 0 0 base_link odom 10" />
+
+</launch>

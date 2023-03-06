@@ -1,0 +1,30 @@
+base_local_planner: "teb_local_planner/TebLocalPlannerROS"
+controller_frequency: 10.0
+
+TebLocalPlannerROS:
+  odom_topic: odom
+  map_frame: /map
+
+  # robot
+  max_vel_x: 0.45             # Measured (Physical Upper Bound)
+  max_vel_x_backwards: 0.225  # max_vel_x / 2 (do not run backward too fast)
+  max_vel_theta: 1.0         # Measured
+  acc_lim_x: 0.45
+  acc_lim_theta: 1.0
+  footprint_model:
+    type: "polygon"
+    vertices: [[0.325, 0.3], [0.325, -0.3], [-0.325, -0.3], [-0.325, 0.3]]
+  # measure the maxlength & width or the distance between the centre of wheels
+
+  # robot - holonomic
+  min_turning_radius: 0.0
+  max_vel_y: 0.31            # Measured (Physical Upper Bound)
+  acc_lim_y: 0.31
+  weight_kinematics_nh: 10.0  # Reduce to tune (0.0 Smaller <-- holonomic -- Medium -- car-like --> Large 1000.0)
+
+  # obstacle avoidance
+  min_obstacle_dist: 0.15
+  inflation_dist: 0.4
+
+  # penalize backward driving
+  weight_kinematics_forward_drive: 10.0

@@ -1,0 +1,17 @@
+# Docs: http://wiki.ros.org/costmap_2d
+
+local_costmap:
+  global_frame: odom
+  robot_base_frame: base_link
+  update_frequency: 5.0
+  publish_frequency: 2.0
+  rolling_window: true
+
+  width: 3.0
+  height: 3.0
+  resolution: 0.1
+
+  plugins:
+   - {name: static_layer,        type: "costmap_2d::StaticLayer"}
+   - {name: obstacle_layer,      type: "costmap_2d::VoxelLayer"}
+

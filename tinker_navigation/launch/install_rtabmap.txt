@@ -1,0 +1,6 @@
+sudo apt-get install ros-melodic-imu-filter-madgwick
+sudo apt-get install ros-melodic-rtabmap-ros
+sudo apt-get install ros-melodic-robot-localization
+
+cd catkin_ws/src
+git clone git@github.com:OctoMap/octomap_rviz_plugins.git

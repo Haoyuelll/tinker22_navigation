@@ -1,0 +1,44 @@
+<!--
+  Pasteright 2021 Tinker@Hazel
+-->
+
+<launch>
+    <!-- static map -->
+    <arg name="load_static_map" default="" />
+
+    <!-- set static map args -->
+    <arg if="$(eval load_static_map != '')" name="cartographer_arguments" value="-load_state_filename $(find tinker_navigation)/static_maps/$(arg load_static_map)/map.pbstream" />
+    <arg if="$(eval load_static_map == '')" name="cartographer_arguments" value="" />
+
+    <!-- lidars -->
+    <include file="$(find rplidar_ros)/launch/rplidar_a3.launch" />
+
+    <!-- cartographer -->
+    <!-- ref: https://readthedocs.org/projects/google-cartographer-ros/downloads/pdf/latest/ -->
+
+    <node name="cartographer_node" pkg="cartographer_ros"
+      type="cartographer_node" args="
+          -configuration_directory $(find tinker_navigation)/config/slam
+          -configuration_basename CartoKimera.lua
+          $(arg cartographer_arguments)"
+      output="screen" respawn="true" />
+          <!-- -configuration_basename CartoKimera.lua -->
+          <!-- -configuration_basename single_rplidar.lua -->
+
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+        type="cartographer_occupancy_grid_node" args="-resolution 0.02"
+        output="screen" respawn="true"/>
+    
+    
+    <!-- rgbd camera -->
+    <!--include file="$(find tinker_navigation)/launch/rs_camera.launch"/-->
+    <!-- <include file="$(find tinker_navigation)/launch/rgbd_rtab.launch"/> -->
+    <remap from="/camera/aligned_depth_to_color/image_raw" to="/point_cloud2"/>
+
+    <!-- robot -->
+    <!-- <param name="robot_description" command="xacro '$(find tinker_description)/urdf/tinker.urdf.xacro'" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+      type="robot_state_publisher" /> -->
+    
+</launch>
