@@ -1,0 +1,53 @@
+<!--
+  Pasteright 2021 Tinker@Hazel
+-->
+
+<launch>
+  <param name="/use_sim_time" value="false" />
+
+  <!-- static map -->
+  <arg name="load_static_map" default="" />
+
+  <!-- set static map args -->
+  <arg if="$(eval load_static_map != '')" name="cartographer_arguments" value="-load_state_filename $(find tinker_navigation)/static_maps/$(arg load_static_map)/map.pbstream" />
+  <arg if="$(eval load_static_map == '')" name="cartographer_arguments" value="" />
+
+  <!-- lidars -->
+  <include file="$(find urg_node)/launch/urg_lidar.launch" />
+  <!-- <node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
+    <param name="calibrate_time" type="bool" value="false" />
+    <param name="port" type="string" value="/dev/ttyACM0" />
+    <param name="frame_id" type="string" value="laser" />
+    <param name="intensity" type="bool" value="false" />
+  </node> -->
+
+  <!-- cartographer -->
+  <!-- ref: https://readthedocs.org/projects/google-cartographer-ros/downloads/pdf/latest/ -->
+  <node name="cartographer_node" pkg="cartographer_ros"
+    type="cartographer_node" args="
+          -configuration_directory $(find tinker_navigation)/config/slam
+          -configuration_basename carto_hokuyo.lua"
+    output="screen">
+    <remap from="scan" to="/scan" />
+  </node>
+
+  <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+    type="cartographer_occupancy_grid_node" args="-resolution 0.02"
+    output="screen" respawn="true" />
+
+  <!-- rgbd camera -->
+  <!--include file="$(find tinker_navigation)/launch/rs_camera.launch"/-->
+  <!-- <include file="$(find tinker_navigation)/launch/rgbd_rtab.launch"/> -->
+  <!-- <remap from="/camera/aligned_depth_to_color/image_raw" to="/point_cloud2" /> -->
+
+  <!-- robot urdf publisher-->
+  <param name="robot_description" command="xacro '$(find tinker_description)/urdf/tinker.urdf.xacro'" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+    type="robot_state_publisher" />
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="world_map_trans" args="0 0 0 0 0 0 world map 10" /> -->
+
+  <!-- <node name="rviz" pkg="rviz" type="rviz" required="true"
+    args="-d $(find cartographer_ros)/configuration_files/demo_2d.rviz" /> -->
+
+</launch>

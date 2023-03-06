@@ -1,0 +1,67 @@
+<!-- -->
+
+<launch>
+    <param name="/use_sim_time" value="false" />
+
+    <!-- load static map arg (pass) -->
+    <arg name="map_dir" default="$(find tinker_navigation)/static_maps/reception" />
+    <arg name="load_static_map" default="$(arg map_dir)/1.pbstream" />
+
+    <!-- lidars -->
+    <include file="$(find urg_node)/launch/urg_lidar.launch" />
+
+    <!-- amcl -->
+    <!-- <include file="$(find tinker_navigation)/launch/amcl.launch" /> -->
+    <!-- <node name="map_server" pkg="map_server" type="map_server" output="screen"
+        args="$(find tinker_navigation)/static_maps/reception/map.yaml" >
+    </node> -->
+    <!-- <node pkg="amcl" type="amcl" name="amcl" output="screen">
+        <rosparam file="$(find tinker_navigation)/config/navigation/amcl_params.yaml" command="load" />
+        <param name="initial_pose_x" value="2" />
+        <param name="initial_pose_y" value="2" />
+        <param name="initial_pose_a" value="0" />
+    </node> -->
+
+    <!-- start cartographer loacalization only -->
+    <node name="cartographer_node" pkg="cartographer_ros"
+        type="cartographer_node" args="
+          -load_state_filename $(find tinker_navigation)/static_maps/reception/1.pbstream 
+          -configuration_directory $(find tinker_navigation)/config/slam
+          -configuration_basename carto_hokuyo.lua"
+        output="screen">
+        <remap from="scan" to="scan" />
+        <remap from="odom" to="odom" />
+        <remap from="imu" to="IMU" />
+    </node>
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+        type="cartographer_occupancy_grid_node" args="-resolution 0.02"
+        output="screen" respawn="true" />
+
+    <!-- robot urdf publisher-->
+    <param name="robot_description" command="xacro '$(find tinker_description)/urdf/tinker.urdf.xacro'" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" />
+
+    <!-- broadcasting current loaction in base_link -->
+    <!-- <node name="loc_broadcaster" pkg="tinker_navigation"
+        type="loc_broadcaster.py" args="" respawn="true" /> -->
+    <node name="send_goal" pkg="tinker_navigation"
+        type="send_goal" args="" respawn="true" />
+
+    <!-- slam stack -->
+    <!-- <include file="$(find tinker_navigation)/launch/slam.launch" pass_all_args="true" /> -->
+
+    <!-- move_base -->
+    <node pkg="move_base" type="move_base" name="move_base" output="screen" respawn="true">
+        <rosparam file="$(find tinker_navigation)/config/navigation/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find tinker_navigation)/config/navigation/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find tinker_navigation)/config/navigation/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find tinker_navigation)/config/navigation/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find tinker_navigation)/config/navigation/teb_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find tinker_navigation)/config/navigation/global_planner_params.yaml" command="load" />
+        <!--rosparam file="$(find tinker_navigation)/config/navigation/move_base_params.yaml" command="load" /-->
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find tinker_navigation)/config/slam/laser_slam.rviz" />
+    <!-- <node pkg="tinker_navigation" type="tracker.py" name="tracker" output="screen" respawn="true" /> -->
+</launch>
