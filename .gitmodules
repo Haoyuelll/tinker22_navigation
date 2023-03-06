@@ -1,3 +1,7 @@
 [submodule "urg_node"]
 	path = urg_node
 	url = git://github.com/ros-drivers/urg_node.git
+
+[submodule "ira_laser_tools"]
+	path = ira_laser_tools
+	url = git://github.com/iralabdisco/ira_laser_tools.git

@@ -12,21 +12,16 @@ SLAM: `roslaunch tinker_navigation slam.launch`
 ## tinker_navigation
 Using cartographer for SLAM and teb_loacl_planner for planning. 
 
-`./tinker_navigaition/config/navigation`: .yaml file of costmap and other planning parameters
-
-`./tinker_navigaition/config/slam`: .lua & .rviz file for laser scan / camera pointcloud
-
-`./tinker_navigaition/lauch`: .launch file, acml.launch is abandoned
-
-`./tinker_navigaition/src` & `./tinker_navigaition/scripts`: codes for specific tasks
+`./tinker_navigaition/config/navigation`: .yaml file of costmap and other planning parameters  
+`./tinker_navigaition/config/slam`: .lua & .rviz file for laser scan / camera pointcloud  
+`./tinker_navigaition/lauch`: .launch file, acml.launch is abandoned  
+`./tinker_navigaition/src` & `./tinker_navigaition/scripts`: codes for specific tasks  
 
 
 ## tinker_description
-Paramters and model of Tinker
-
-`./tinker_description/meshes`: .stl model, note that this model only contains the skeleton of tinker
-
-`./tinker_description/urdf` & `./tinker_description/launch`: .urdf description and urdf publisher
+Paramters and model of Tinker  
+`./tinker_description/meshes`: .stl model, note that this model only contains the skeleton of tinker  
+`./tinker_description/urdf` & `./tinker_description/launch`: .urdf description and urdf publisher  
 
 ## urg_node
 External repo for Hokuyo laser scan
