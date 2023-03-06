@@ -7,15 +7,15 @@ SLAM: `roslaunch tinker_navigation slam.launch`
 *Note that* 
 1. slam.launch will be called in nav.launch. 
 2. The recording of ros bag and map file is not included in slam.launch
-3. Add map file with the option of `-load_static_map`
+3. Add map file with the option `-load_static_map`
 
 ## tinker_navigation
 Using cartographer for SLAM and teb_loacl_planner for planning. 
 
-`./tinker_navigaition/config/navigation`: .yaml file of costmap and other planning parameters  
-`./tinker_navigaition/config/slam`: .lua & .rviz file for laser scan / camera pointcloud  
-`./tinker_navigaition/lauch`: .launch file, acml.launch is abandoned  
-`./tinker_navigaition/src` & `./tinker_navigaition/scripts`: codes for specific tasks  
+`./tinker_navigation/config/navigation`: .yaml file of costmap and other planning parameters  
+`./tinker_navigation/config/slam`: .lua & .rviz file for laser scan / camera pointcloud  
+`./tinker_navigation/lauch`: .launch file, acml.launch is abandoned  
+`./tinker_navigation/src` & `./tinker_navigation/scripts`: codes for specific tasks  
 
 
 ## tinker_description
